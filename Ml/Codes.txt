@@ -1,0 +1,1002 @@
+1)
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from scipy import stats
+# Load the Iris dataset
+iris = load_iris()
+df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+df['species'] = iris.target_names[iris.target]
+# Display first few rows
+print("Dataset preview:")
+print(df.head())
+# Select a numerical column
+numerical_column = 'sepal length (cm)'
+data = df[numerical_column]
+# 1. Descriptive Statistics
+mean = data.mean()
+median = data.median()
+mode = data.mode()[0]
+std_dev = data.std()
+variance = data.var()
+data_range = data.max() - data.min()
+print(f"\nDescriptive Statistics for '{numerical_column}':")
+print(f"Mean: {mean}")
+print(f"Median: {median}")
+print(f"Mode: {mode}")
+print(f"Standard Deviation: {std_dev}")
+print(f"Variance: {variance}")
+print(f"Range: {data_range}")
+# 2. Histogram and Boxplot
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+sns.histplot(data, kde=True, color='skyblue')
+plt.title('Histogram')
+plt.subplot(1, 2, 2)
+sns.boxplot(x=data, color='lightgreen')
+plt.title('Boxplot')
+plt.suptitle(f'Distribution of {numerical_column}')
+plt.tight_layout()
+plt.show()
+# 3. Outlier Detection using IQR
+Q1 = data.quantile(0.25)
+Q3 = data.quantile(0.75)
+IQR = Q3 - Q1
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+outliers = data[(data < lower_bound) | (data > upper_bound)]
+print(f"\nOutliers in '{numerical_column}' using IQR method:")
+print(outliers)
+# 4. Categorical Column Analysis
+categorical_column = 'species'
+category_counts = df[categorical_column].value_counts()
+print(f"\nFrequency of each category in '{categorical_column}':")
+print(category_counts)
+# Bar Chart
+plt.figure(figsize=(10, 4))
+plt.subplot(1, 2, 1)
+category_counts.plot(kind='bar', color='coral')
+plt.title('Bar Chart of Species')
+plt.ylabel('Frequency')
+# Pie Chart
+plt.subplot(1, 2, 2)
+category_counts.plot(kind='pie', autopct='%1.1f%%', startangle=140)
+plt.title('Pie Chart of Species')
+plt.ylabel('')
+plt.tight_layout()
+plt.show()
+pip install pandas numpy scipy matplotlib seaborn scikit-learn
+---------------------------------------------------------------------------------------------------------------------------
+--
+2)
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+# Load the Iris dataset
+iris = load_iris()
+df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+df['species'] = pd.Categorical.from_codes(iris.target, iris.target_names)
+# Show the first few rows
+print("Dataset Preview:")
+print(df.head())
+# Select two numerical columns
+x = df['sepal length (cm)']
+y = df['petal length (cm)']
+# 1. Scatter Plot
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=x, y=y, hue=df['species'], style=df['species'])
+plt.title('Scatter Plot: Sepal Length vs Petal Length')
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Petal Length (cm)')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+# 2. Pearson Correlation Coefficient
+pearson_corr = x.corr(y)
+print(f"\nPearson Correlation Coefficient between Sepal Length and Petal Length:
+{pearson_corr:.4f}")
+# 3. Covariance Matrix
+cov_matrix = df.drop(columns='species').cov()
+print("\nCovariance Matrix:")
+print(cov_matrix.round(2))
+# 4. Correlation Matrix
+corr_matrix = df.drop(columns='species').corr()
+print("\nCorrelation Matrix:")
+print(corr_matrix.round(2))
+# 5. Heatmap of Correlation Matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, linewidths=0.5)
+plt.title('Correlation Matrix Heatmap')
+plt.tight_layout()
+plt.show()
+OR
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+# Load the Iris dataset
+iris = load_iris()
+df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+# Show the first few rows
+print("Dataset Preview:")
+print(df.head())
+# Select two numerical columns
+x = df['sepal length (cm)']
+y = df['petal length (cm)']
+# 1. Scatter Plot
+plt.figure(figsize=(6, 5))
+sns.scatterplot(x=x, y=y)
+plt.title('Scatter Plot: Sepal Length vs Petal Length')
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Petal Length (cm)')
+plt.grid(True)
+plt.show()
+# 2. Pearson Correlation Coefficient
+pearson_corr = x.corr(y)
+print(f"\nPearson Correlation Coefficient between Sepal Length and Petal Length:
+{pearson_corr:.4f}")
+# 3. Covariance Matrix
+cov_matrix = df.cov()
+print("\nCovariance Matrix:")
+print(cov_matrix)
+# 4. Correlation Matrix
+corr_matrix = df.corr()
+print("\nCorrelation Matrix:")
+print(corr_matrix)
+# 5. Heatmap of Correlation Matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
+plt.title('Correlation Matrix Heatmap')
+plt.tight_layout()
+plt.show()
+pip install pandas seaborn matplotlib scikit-learn
+---------------------------------------------------------------------------------------------------------------------------
+---------------
+3)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+# 1. Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+target_names = iris.target_names
+# 2. Standardize the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+# 3. Apply PCA to reduce dimensions from 4 to 2
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+# 4. Create a DataFrame with PCA results and target
+df_pca = pd.DataFrame(data=X_pca, columns=['PC1', 'PC2'])
+df_pca['Target'] = y
+# 5. Visualize the 2D PCA result
+plt.figure(figsize=(8, 6))
+for i, label in enumerate(target_names):
+plt.scatter(
+df_pca[df_pca['Target'] == i]['PC1'],
+df_pca[df_pca['Target'] == i]['PC2'],
+label=label
+)
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.title('PCA of Iris Dataset (2D)')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+# 6. Explained Variance
+print("\nExplained Variance Ratio:")
+print(pca.explained_variance_ratio_)
+OR
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+# 1. Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+target_names = iris.target_names
+# Create DataFrame for preview
+df = pd.DataFrame(data=X, columns=iris.feature_names)
+df['species'] = pd.Categorical.from_codes(y, target_names)
+# Show the first few rows
+print("Dataset Preview:")
+print(df.head())
+# 2. Standardize the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+# 3. Apply PCA to reduce dimensions from 4 to 2
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+# 4. Create a DataFrame with PCA results and target
+df_pca = pd.DataFrame(data=X_pca, columns=['PC1', 'PC2'])
+df_pca['species'] = pd.Categorical.from_codes(y, target_names)
+# 5. Visualize the 2D PCA result
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='PC1', y='PC2', hue='species', style='species', data=df_pca)
+plt.title('PCA of Iris Dataset (2D)')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+# 6. Explained Variance
+print("\nExplained Variance Ratio:")
+print(f"PC1: {pca.explained_variance_ratio_[0]:.4f}")
+print(f"PC2: {pca.explained_variance_ratio_[1]:.4f}")
+print(f"Total Variance Explained: {sum(pca.explained_variance_ratio_):.4f}")
+pip install pandas matplotlib scikit-learn
+---------------------------------------------------------------------------------------------------------------------------
+---------------
+4)
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, f1_score
+# 1. Load Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+# 2. Split into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# 3. Function to evaluate model
+def evaluate_knn(k, weight_type='uniform'):
+model = KNeighborsClassifier(n_neighbors=k, weights=weight_type)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred, average='weighted')
+print(f"k = {k}, Weights = {weight_type}")
+print(f"Accuracy: {acc:.4f}")
+print(f"F1-score: {f1:.4f}\n")
+# 4. Test for k = 1, 3, 5 (Regular k-NN)
+print("Regular k-NN (uniform weights):")
+for k in [1, 3, 5]:
+evaluate_knn(k, weight_type='uniform')
+# 5. Test for k = 1, 3, 5 (Weighted k-NN: weight = 1/d^2)
+print("Weighted k-NN (inverse square distance):")
+for k in [1, 3, 5]:
+evaluate_knn(k, weight_type='distance')
+OR
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, f1_score
+from sklearn.preprocessing import StandardScaler
+# 1. Load Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+target_names = iris.target_names
+# Create DataFrame for preview
+df = pd.DataFrame(data=X, columns=iris.feature_names)
+df['species'] = pd.Categorical.from_codes(y, target_names)
+print("Dataset Preview:")
+print(df.head())
+# 2. Split into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42,
+stratify=y)
+# 3. Standardize the features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+# 4. Function to evaluate model
+def evaluate_knn(k, weight_type='uniform'):
+model = KNeighborsClassifier(n_neighbors=k, weights=weight_type)
+model.fit(X_train_scaled, y_train)
+y_pred = model.predict(X_test_scaled)
+acc = accuracy_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred, average='weighted')
+return {'k': k, 'Model': f'{weight_type.capitalize()} k-NN', 'Accuracy': acc, 'F1-Score': f1}
+# 5. Test for k = 1, 3, 5 (Regular and Weighted k-NN)
+results = []
+for k in [1, 3, 5]:
+results.append(evaluate_knn(k, weight_type='uniform'))
+results.append(evaluate_knn(k, weight_type='distance'))
+# Create and print results DataFrame
+results_df = pd.DataFrame(results)
+print("\nPerformance Comparison:")
+print(results_df.round(4))
+# 6. Visualize results
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
+sns.lineplot(x='k', y='Accuracy', hue='Model', style='Model', markers=True, data=results_df)
+plt.title('Accuracy vs k')
+plt.xlabel('k')
+plt.ylabel('Accuracy')
+plt.xticks([1, 3, 5])
+plt.grid(True)
+plt.subplot(1, 2, 2)
+sns.lineplot(x='k', y='F1-Score', hue='Model', style='Model', markers=True, data=results_df)
+plt.title('F1-Score vs k')
+plt.xlabel('k')
+plt.ylabel('F1-Score')
+plt.xticks([1, 3, 5])
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+pip install pandas numpy seaborn matplotlib scikit-learn
+pip install pandas scikit-learn
+---------------------------------------------------------------------------------------------------------------------------
+---------------
+5/6)
+import numpy as np
+import matplotlib.pyplot as plt
+# Generate synthetic sine wave data with bias/noise
+np.random.seed(0)
+X = np.linspace(0, 2 * np.pi, 100)
+y = np.sin(X) + 0.2 * np.random.randn(100) + 0.1 # Adding small bias
+# Reshape X for matrix calculations
+X = X.reshape(-1, 1)
+# Add a column of ones to X (for bias term)
+def add_bias(X):
+return np.hstack((np.ones((X.shape[0], 1)), X))
+# Gaussian kernel
+def gaussian_kernel(x, xi, tau):
+return np.exp(-np.sum((x - xi)**2) / (2 * tau**2))
+# Locally Weighted Regression implementation
+def predict_lwr(X_train, y_train, x_query, tau):
+m = X_train.shape[0]
+W = np.eye(m)
+for i in range(m):
+W[i, i] = gaussian_kernel(x_query, X_train[i], tau)
+X_b = add_bias(X_train)
+x_query_b = np.hstack(([1], x_query)) # Bias added
+# θ = (XᵗWX)⁻¹XᵗWy
+theta = np.linalg.pinv(X_b.T @ W @ X_b) @ X_b.T @ W @ y_train
+return x_query_b @ theta
+# Predict over a range of x values
+tau = 0.5 # bandwidth (controls locality)
+y_pred = []
+for x in X:
+y_pred.append(predict_lwr(X, y, x, tau))
+y_pred = np.array(y_pred)
+# Plotting
+plt.figure(figsize=(10, 6))
+plt.scatter(X, y, color='lightgray', label='Noisy Data')
+plt.plot(X, np.sin(X) + 0.1, label='True Function (sin + bias)', linestyle='--', color='green')
+plt.plot(X, y_pred, color='red', label='LWR Prediction')
+plt.title('Locally Weighted Regression (LWR) on Noisy Sine Wave')
+plt.xlabel('X')
+plt.ylabel('y')
+plt.legend()
+plt.grid(True)
+plt.show()
+pip install numpy matplotlib
+
+7)
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_boston
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+# Load Boston Housing dataset
+boston = load_boston()
+X = boston.data
+y = boston.target
+# Split into train/test
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Create Linear Regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+# Predict
+y_pred = model.predict(X_test)
+# Evaluation
+print("Linear Regression on Boston Housing Dataset")
+print(f"Mean Squared Error: {mean_squared_error(y_test, y_pred):.2f}")
+print(f"R^2 Score: {r2_score(y_test, y_pred):.2f}")
+# Plot true vs predicted values
+plt.scatter(y_test, y_pred, color='blue')
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2)
+plt.xlabel("True Prices")
+plt.ylabel("Predicted Prices")
+plt.title("Linear Regression: True vs Predicted Prices")
+plt.show()
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+# Load Auto MPG dataset from UCI repository
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data"
+column_names = ['mpg', 'cylinders', 'displacement', 'horsepower', 'weight',
+'acceleration', 'model_year', 'origin', 'car_name']
+df = pd.read_csv(url, names=column_names, delim_whitespace=True, na_values='?')
+# Drop rows with missing values
+df = df.dropna()
+# Select feature and target
+X = df[['horsepower']].values
+y = df['mpg'].values
+# Split into train/test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Transform features to polynomial features (degree 3)
+poly = PolynomialFeatures(degree=3)
+X_train_poly = poly.fit_transform(X_train)
+X_test_poly = poly.transform(X_test)
+# Train Linear Regression on polynomial features
+model = LinearRegression()
+model.fit(X_train_poly, y_train)
+# Predict
+y_pred = model.predict(X_test_poly)
+# Evaluation
+print("Polynomial Regression on Auto MPG Dataset (degree=3)")
+print(f"Mean Squared Error: {mean_squared_error(y_test, y_pred):.2f}")
+print(f"R^2 Score: {r2_score(y_test, y_pred):.2f}")
+# Plot
+plt.scatter(X_test, y_test, color='blue', label='Actual MPG')
+X_fit = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
+X_fit_poly = poly.transform(X_fit)
+y_fit = model.predict(X_fit_poly)
+plt.plot(X_fit, y_fit, color='red', label='Polynomial Fit')
+plt.xlabel('Horsepower')
+plt.ylabel('MPG')
+plt.title('Polynomial Regression: MPG vs Horsepower')
+plt.legend()
+plt.show()
+pip install numpy pandas scikit-learn matplotlib
+OR
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import fetch_openml
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
+from sklearn.metrics import mean_squared_error, r2_score
+# --- Linear Regression on Boston Housing Dataset ---
+# Load Boston Housing Dataset
+boston = fetch_openml(name="boston", version=1, as_frame=True)
+df_boston = boston.frame
+df_boston.columns = [col.upper() for col in df_boston.columns] # Match historical naming
+print("Boston Housing Dataset Preview:")
+print(df_boston.head())
+# Select features with high correlation to MEDV (based on web insights)
+features = ['RM', 'LSTAT'] # RM: positive correlation, LSTAT: negative correlation
+X_boston = df_boston[features]
+y_boston = df_boston['MEDV']
+# Handle missing values (Boston dataset is clean, but check for robustness)
+X_boston = X_boston.fillna(X_boston.mean())
+y_boston = y_boston.fillna(y_boston.mean())
+# Split data
+X_train_b, X_test_b, y_train_b, y_test_b = train_test_split(
+X_boston, y_boston, test_size=0.2, random_state=42
+)
+# Standardize features
+scaler_b = StandardScaler()
+X_train_b_scaled = scaler_b.fit_transform(X_train_b)
+X_test_b_scaled = scaler_b.transform(X_test_b)
+# Train Linear Regression model
+lr_model = LinearRegression()
+lr_model.fit(X_train_b_scaled, y_train_b)
+y_pred_b = lr_model.predict(X_test_b_scaled)
+# Evaluate Linear Regression
+mse_b = mean_squared_error(y_test_b, y_pred_b)
+r2_b = r2_score(y_test_b, y_pred_b)
+print("\nLinear Regression (Boston Housing) Results:")
+print(f"MSE: {mse_b:.4f}")
+print(f"R2 Score: {r2_b:.4f}")
+# Visualize Linear Regression (using RM for scatter plot)
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+sns.scatterplot(x=X_test_b['RM'], y=y_test_b, color='blue', label='Actual')
+sns.scatterplot(x=X_test_b['RM'], y=y_pred_b, color='red', label='Predicted')
+plt.xlabel('Average Number of Rooms (RM)')
+plt.ylabel('House Price (MEDV, $1000s)')
+plt.title('Linear Regression: Boston Housing')
+plt.legend()
+plt.grid(True)
+# --- Polynomial Regression on Auto MPG Dataset ---
+# Load Auto MPG Dataset (using UCI dataset via fetch_openml or local CSV)
+try:
+auto_mpg = fetch_openml(name="auto-mpg", version=1, as_frame=True)
+df_auto = auto_mpg.frame
+except:
+# Fallback: synthetic or local CSV (simplified for demonstration)
+print("Auto MPG dataset not found. Using synthetic data.")
+np.random.seed(42)
+df_auto = pd.DataFrame({
+'horsepower': np.linspace(50, 200, 100),
+'mpg': 30 - 0.1 * np.linspace(50, 200, 100) + np.random.normal(0, 2, 100)
+})
+print("\nAuto MPG Dataset Preview:")
+print(df_auto.head())
+# Select feature (horsepower) and target (mpg)
+X_auto = df_auto[['horsepower']].values
+y_auto = df_auto['mpg'].values
+# Handle missing values
+X_auto = np.nan_to_num(X_auto, nan=np.nanmean(X_auto))
+y_auto = np.nan_to_num(y_auto, nan=np.nanmean(y_auto))
+# Split data
+X_train_a, X_test_a, y_train_a, y_test_a = train_test_split(
+X_auto, y_auto, test_size=0.2, random_state=42
+)
+# Standardize features
+scaler_a = StandardScaler()
+X_train_a_scaled = scaler_a.fit_transform(X_train_a)
+X_test_a_scaled = scaler_a.transform(X_test_a)
+# Polynomial Regression for degrees 1, 2, 3
+degrees = [1, 2, 3]
+results_auto = []
+plt.figure(figsize=(15, 5))
+for i, degree in enumerate(degrees, 1):
+# Create polynomial features
+poly = PolynomialFeatures(degree=degree)
+X_train_poly = poly.fit_transform(X_train_a_scaled)
+X_test_poly = poly.transform(X_test_a_scaled)
+# Train model
+poly_model = LinearRegression()
+poly_model.fit(X_train_poly, y_train_a)
+y_pred_a = poly_model.predict(X_test_poly)
+# Evaluate
+mse_a = mean_squared_error(y_test_a, y_pred_a)
+r2_a = r2_score(y_test_a, y_pred_a)
+results_auto.append({'Degree': degree, 'MSE': mse_a, 'R2': r2_a})
+# Visualize (sort for smooth plotting)
+X_plot = np.linspace(X_test_a_scaled.min(), X_test_a_scaled.max(), 100).reshape(-1, 1)
+X_plot_poly = poly.transform(X_plot)
+y_plot = poly_model.predict(X_plot_poly)
+plt.subplot(1, 3, i)
+sns.scatterplot(x=X_test_a_scaled.flatten(), y=y_test_a, color='blue', label='Actual')
+sns.lineplot(x=X_plot.flatten(), y=y_plot, color='red', label='Predicted')
+plt.xlabel('Horsepower (standardized)')
+plt.ylabel('MPG')
+plt.title(f'Polynomial Regression (Degree {degree})')
+plt.grid(True)
+plt.legend()
+# Print Polynomial Regression results
+print("\nPolynomial Regression (Auto MPG) Results:")
+print(pd.DataFrame(results_auto).round(4))
+plt.suptitle('Polynomial Regression: Auto MPG Dataset')
+plt.tight_layout(rect=[0, 0, 1, 0.95])
+plt.show()
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import fetch_openml
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
+from sklearn.metrics import mean_squared_error, r2_score
+# --- Linear Regression on Boston Housing Dataset ---
+# Load Boston Housing dataset (cached locally after first download)
+boston = fetch_openml(name="boston", version=1, as_frame=True)
+df_boston = boston.frame
+df_boston.columns = [col.upper() for col in df_boston.columns] # Match historical naming
+print("Boston Housing Dataset Preview:")
+print(df_boston.head())
+# Select features (RM, LSTAT for high correlation with MEDV)
+X_boston = df_boston[['RM', 'LSTAT']]
+y_boston = df_boston['MEDV']
+# Handle missing values (Boston dataset is clean, but included for robustness)
+X_boston = X_boston.fillna(X_boston.mean())
+y_boston = y_boston.fillna(y_boston.mean())
+# Split into train/test
+X_train_b, X_test_b, y_train_b, y_test_b = train_test_split(
+X_boston, y_boston, test_size=0.2, random_state=42
+)
+# Standardize features
+scaler_b = StandardScaler()
+X_train_b_scaled = scaler_b.fit_transform(X_train_b)
+X_test_b_scaled = scaler_b.transform(X_test_b)
+# Create and train Linear Regression model
+model_b = LinearRegression()
+model_b.fit(X_train_b_scaled, y_train_b)
+y_pred_b = model_b.predict(X_test_b_scaled)
+# Evaluate
+mse_b = mean_squared_error(y_test_b, y_pred_b)
+r2_b = r2_score(y_test_b, y_pred_b)
+print("\nLinear Regression on Boston Housing Dataset")
+print(f"Mean Squared Error: {mse_b:.2f}")
+print(f"R^2 Score: {r2_b:.2f}")
+# Plot true vs predicted (using RM for scatter)
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+sns.scatterplot(x=X_test_b['RM'], y=y_test_b, color='blue', label='Actual')
+sns.scatterplot(x=X_test_b['RM'], y=y_pred_b, color='red', label='Predicted')
+plt.xlabel('Average Number of Rooms (RM)')
+plt.ylabel('House Price (MEDV, $1000s)')
+plt.title('Linear Regression: Boston Housing')
+plt.legend()
+plt.grid(True)
+# --- Polynomial Regression on Synthetic Auto MPG Dataset ---
+# Generate synthetic Auto MPG-like dataset (since original requires internet)
+np.random.seed(42)
+n_samples = 400
+horsepower = np.linspace(50, 200, n_samples)
+mpg = 30 - 0.1 * horsepower + 0.0003 * horsepower**2 + np.random.normal(0, 2,
+n_samples)
+df_auto = pd.DataFrame({'horsepower': horsepower, 'mpg': mpg})
+print("\nSynthetic Auto MPG Dataset Preview:")
+print(df_auto.head())
+# Select feature and target
+X_auto = df_auto[['horsepower']].values
+y_auto = df_auto['mpg'].values
+# Split into train/test
+X_train_a, X_test_a, y_train_a, y_test_a = train_test_split(
+X_auto, y_auto, test_size=0.2, random_state=42
+)
+# Standardize features
+scaler_a = StandardScaler()
+X_train_a_scaled = scaler_a.fit_transform(X_train_a)
+X_test_a_scaled = scaler_a.transform(X_test_a)
+# Polynomial Regression for degree 3
+poly = PolynomialFeatures(degree=3)
+X_train_poly = poly.fit_transform(X_train_a_scaled)
+X_test_poly = poly.transform(X_test_a_scaled)
+# Train model
+model_a = LinearRegression()
+model_a.fit(X_train_poly, y_train_a)
+y_pred_a = model_a.predict(X_test_poly)
+# Evaluate
+mse_a = mean_squared_error(y_test_a, y_pred_a)
+r2_a = r2_score(y_test_a, y_pred_a)
+print("\nPolynomial Regression on Synthetic Auto MPG Dataset (degree=3)")
+print(f"Mean Squared Error: {mse_a:.2f}")
+print(f"R^2 Score: {r2_a:.2f}")
+# Plot
+plt.subplot(1, 2, 2)
+sns.scatterplot(x=X_test_a_scaled.flatten(), y=y_test_a, color='blue', label='Actual')
+X_fit = np.linspace(X_test_a_scaled.min(), X_test_a_scaled.max(), 100).reshape(-1, 1)
+X_fit_poly = poly.transform(X_fit)
+y_fit = model_a.predict(X_fit_poly)
+sns.lineplot(x=X_fit.flatten(), y=y_fit, color='red', label='Polynomial Fit')
+plt.xlabel('Horsepower (standardized)')
+plt.ylabel('MPG')
+plt.title('Polynomial Regression: MPG vs Horsepower')
+plt.legend()
+plt.grid(True)
+plt.suptitle('Linear and Polynomial Regression Results')
+plt.tight_layout(rect=[0, 0, 1, 0.95])
+plt.show()
+pip install pandas numpy matplotlib seaborn scikit-learn
+pip install pandas numpy matplotlib seaborn scikit-learn
+---------------------------------------------------------------------------------------------------------------------------
+---------------
+8)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.preprocessing import LabelEncoder
+# Load the dataset from local CSV file (downloaded from Kaggle)
+df = pd.read_csv("train.csv") # Ensure 'train.csv' is in the same folder or provide full path
+# Display first few rows
+print("Titanic Dataset Preview:")
+print(df.head())
+# Select features and target
+features = ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']
+X = df[features]
+y = df['Survived']
+# Handle missing values
+X['Age'] = X['Age'].fillna(X['Age'].median())
+X['Fare'] = X['Fare'].fillna(X['Fare'].median())
+# Encode categorical variable 'Sex'
+le = LabelEncoder()
+X['Sex'] = le.fit_transform(X['Sex']) # male: 1, female: 0
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+X, y, test_size=0.2, random_state=42, stratify=y
+)
+# Train Decision Tree Classifier
+model = DecisionTreeClassifier(max_depth=4, random_state=42)
+model.fit(X_train, y_train)
+# Predict on test set
+y_pred = model.predict(X_test)
+# Evaluation metrics
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred, average='weighted')
+recall = recall_score(y_test, y_pred, average='weighted')
+f1 = f1_score(y_test, y_pred, average='weighted')
+# Print results
+print("\nEvaluation Metrics:")
+print(f"Accuracy : {accuracy:.4f}")
+print(f"Precision: {precision:.4f}")
+print(f"Recall : {recall:.4f}")
+print(f"F1-Score : {f1:.4f}")
+# Visualize the decision tree
+plt.figure(figsize=(20, 10))
+plot_tree(
+model,
+feature_names=features,
+class_names=["Not Survived", "Survived"],
+filled=True,
+rounded=True
+)
+plt.title("Decision Tree for Titanic Survival Prediction")
+plt.show()
+Put it in the same directory as your Python script or Jupyter Notebook, or update the path in
+this line:
+df = pd.read_csv("train.csv")
+df = pd.read_csv("datasets/titanic/train.csv")
+or
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.preprocessing import LabelEncoder
+# Step 1: Load the Titanic dataset from the uploaded file
+file_path = "/mnt/data/Titanic-Dataset[1].csv"
+df = pd.read_csv(file_path)
+# Step 2: Preview the dataset
+print("Dataset Preview:")
+print(df.head())
+# Step 3: Select features and target
+features = ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']
+X = df[features]
+y = df['Survived']
+# Step 4: Handle missing values
+X['Age'] = X['Age'].fillna(X['Age'].median())
+X['Fare'] = X['Fare'].fillna(X['Fare'].median())
+# Step 5: Encode categorical variable 'Sex'
+le = LabelEncoder()
+X['Sex'] = le.fit_transform(X['Sex']) # male: 1, female: 0
+# Step 6: Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+X, y, test_size=0.2, random_state=42, stratify=y
+)
+# Step 7: Train the Decision Tree Classifier
+model = DecisionTreeClassifier(max_depth=4, random_state=42)
+model.fit(X_train, y_train)
+# Step 8: Predict on test set
+y_pred = model.predict(X_test)
+# Step 9: Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred, average='weighted')
+recall = recall_score(y_test, y_pred, average='weighted')
+f1 = f1_score(y_test, y_pred, average='weighted')
+print("\nEvaluation Metrics:")
+print(f"Accuracy : {accuracy:.4f}")
+print(f"Precision: {precision:.4f}")
+print(f"Recall : {recall:.4f}")
+print(f"F1-Score : {f1:.4f}")
+# Step 10: Visualize the decision tree
+plt.figure(figsize=(20, 10))
+plot_tree(
+model,
+feature_names=features,
+class_names=["Not Survived", "Survived"],
+filled=True,
+rounded=True
+)
+plt.title("Decision Tree for Titanic Survival Prediction")
+plt.show()
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import fetch_openml
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.preprocessing import LabelEncoder
+# Load Titanic dataset
+titanic = fetch_openml(name="titanic", version=1, as_frame=True)
+df = titanic.frame
+print("Titanic Dataset Preview:")
+print(df.head())
+# Select relevant features and target
+features = ['pclass', 'sex', 'age', 'sibsp', 'parch', 'fare']
+X = df[features]
+y = df['survived'].astype(int) # Convert to binary (0 or 1)
+# Handle missing values
+X['age'] = X['age'].fillna(X['age'].median())
+X['fare'] = X['fare'].fillna(X['fare'].median())
+# Encode categorical variable 'sex'
+le = LabelEncoder()
+X['sex'] = le.fit_transform(X['sex']) # male: 1, female: 0
+# Split into train/test sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(
+X, y, test_size=0.2, random_state=42, stratify=y
+)
+# Train Decision Tree Classifier
+dt_model = DecisionTreeClassifier(max_depth=4, random_state=42)
+dt_model.fit(X_train, y_train)
+# Predict
+y_pred = dt_model.predict(X_test)
+# Evaluate
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred, average='weighted')
+recall = recall_score(y_test, y_pred, average='weighted')
+f1 = f1_score(y_test, y_pred, average='weighted')
+print("\nDecision Tree Classifier Results:")
+print(f"Accuracy: {accuracy:.4f}")
+print(f"Precision: {precision:.4f}")
+print(f"Recall: {recall:.4f}")
+print(f"F1-Score: {f1:.4f}")
+# Visualize the Decision Tree
+plt.figure(figsize=(20, 10))
+from sklearn.tree import plot_tree
+plot_tree(dt_model, feature_names=features, class_names=['Not Survived', 'Survived'],
+filled=True, rounded=True)
+plt.title("Decision Tree Structure for Titanic Survival")
+plt.show()
+---------------------------------------------------------------------------------------------------------------------------
+---------------
+9)
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+# 1. Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+# 2. Split into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# 3. Initialize Gaussian Naive Bayes classifier
+gnb = GaussianNB()
+# 4. Train the classifier
+gnb.fit(X_train, y_train)
+# 5. Predict on the test set
+y_pred = gnb.predict(X_test)
+# 6. Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Naive Bayes Classifier Accuracy: {accuracy:.4f}")
+OR
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+# Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+feature_names = iris.feature_names
+target_names = iris.target_names
+# Create DataFrame for preview
+df = pd.DataFrame(X, columns=feature_names)
+df['species'] = pd.Categorical.from_codes(y, target_names)
+print("Iris Dataset Preview:")
+print(df.head())
+# Split into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(
+X, y, test_size=0.2, random_state=42, stratify=y
+)
+# Custom Gaussian Naive Bayes Classifier
+class CustomGaussianNB:
+def fit(self, X, y):
+self.classes = np.unique(y)
+self.n_classes = len(self.classes)
+self.n_features = X.shape[1]
+# Initialize storage for parameters
+self.priors = np.zeros(self.n_classes)
+self.means = np.zeros((self.n_classes, self.n_features))
+self.variances = np.zeros((self.n_classes, self.n_features))
+# Compute priors, means, and variances for each class
+for idx, c in enumerate(self.classes):
+X_c = X[y == c]
+self.priors[idx] = len(X_c) / len(X)
+self.means[idx] = np.mean(X_c, axis=0)
+self.variances[idx] = np.var(X_c, axis=0) + 1e-9 # Add small constant to avoid
+division by zero
+def gaussian_pdf(self, x, mean, var):
+# Gaussian probability density function
+exponent = -0.5 * np.log(2 * np.pi * var) - ((x - mean) ** 2) / (2 * var)
+return np.exp(exponent)
+def predict(self, X):
+predictions = []
+for x in X:
+posteriors = []
+for idx in range(self.n_classes):
+prior = np.log(self.priors[idx]) # Use log to avoid underflow
+likelihood = np.sum(np.log(self.gaussian_pdf(x, self.means[idx],
+self.variances[idx])))
+posterior = prior + likelihood
+posteriors.append(posterior)
+predictions.append(self.classes[np.argmax(posteriors)])
+return np.array(predictions)
+# Initialize and train custom Gaussian Naive Bayes
+custom_gnb = CustomGaussianNB()
+custom_gnb.fit(X_train, y_train)
+# Predict on test set
+y_pred_custom = custom_gnb.predict(X_test)
+# Calculate accuracy
+accuracy_custom = accuracy_score(y_test, y_pred_custom)
+print(f"\nCustom Naive Bayes Classifier Accuracy: {accuracy_custom:.4f}")
+# Train sklearn Gaussian Naive Bayes for comparison
+from sklearn.naive_bayes import GaussianNB
+gnb = GaussianNB()
+gnb.fit(X_train, y_train)
+y_pred_sklearn = gnb.predict(X_test)
+accuracy_sklearn = accuracy_score(y_test, y_pred_sklearn)
+print(f"Sklearn Naive Bayes Classifier Accuracy: {accuracy_sklearn:.4f}")
+# Visualize predictions (using first two features for scatter plot)
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
+sns.scatterplot(x=X_test[:, 0], y=X_test[:, 1], hue=[target_names[i] for i in y_test],
+style=[target_names[i] for i in y_test])
+plt.title('Actual Test Set Classes')
+plt.xlabel(feature_names[0])
+plt.ylabel(feature_names[1])
+plt.subplot(1, 2, 2)
+sns.scatterplot(x=X_test[:, 0], y=X_test[:, 1], hue=[target_names[i] for i in y_pred_custom],
+style=[target_names[i] for i in y_pred_custom])
+plt.title('Custom Naive Bayes Predictions')
+plt.xlabel(feature_names[0])
+plt.ylabel(feature_names[1])
+plt.tight_layout()
+plt.show()
+pip install scikit-learn
+pip install pandas numpy matplotlib seaborn scikit-learn
+---------------------------------------------------------------------------------------------------------------------------
+---------------
+10)
+import pandas as pd
+from sklearn.datasets import load_breast_cancer
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+# 1. Load Breast Cancer dataset
+data = load_breast_cancer()
+X = data.data
+y = data.target # true labels, just for reference
+# 2. Apply KMeans clustering with 2 clusters (malignant/benign)
+kmeans = KMeans(n_clusters=2, random_state=42)
+clusters = kmeans.fit_predict(X)
+# 3. Reduce dimensions to 2D for visualization using PCA
+pca = PCA(n_components=2, random_state=42)
+X_pca = pca.fit_transform(X)
+# 4. Plot clustering results
+plt.figure(figsize=(8, 6))
+plt.scatter(X_pca[:, 0], X_pca[:, 1], c=clusters, cmap='viridis', alpha=0.6, label='Clusters')
+plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1],
+s=200, c='red', marker='X', label='Centroids')
+plt.title('K-means Clustering on Breast Cancer Dataset (PCA-reduced)')
+plt.xlabel('PCA Component 1')
+plt.ylabel('PCA Component 2')
+plt.legend()
+plt.show()
+OR
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_breast_cancer
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+# 1. Load Breast Cancer dataset
+data = load_breast_cancer()
+X = data.data
+y = data.target # true labels (not used for training, only for evaluation)
+# 2. Apply KMeans clustering with 2 clusters (malignant/benign)
+kmeans = KMeans(n_clusters=2, random_state=42)
+clusters = kmeans.fit_predict(X)
+# 3. Reduce data to 2D using PCA for visualization
+pca = PCA(n_components=2, random_state=42)
+X_pca = pca.fit_transform(X)
+# 4. Transform cluster centers to PCA space for accurate plotting
+centers_pca = pca.transform(kmeans.cluster_centers_)
+# 5. Plot clustering results
+plt.figure(figsize=(8, 6))
+plt.scatter(X_pca[:, 0], X_pca[:, 1], c=clusters, cmap='viridis', alpha=0.6, label='Clusters')
+plt.scatter(centers_pca[:, 0], centers_pca[:, 1],
+s=200, c='red', marker='X', label='Centroids')
+plt.title('K-Means Clustering on Breast Cancer Dataset (PCA-reduced)')
+plt.xlabel('PCA Component 1')
+plt.ylabel('PCA Component 2')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+pip install scikit-learn matplotlib pandas
